@@ -1,0 +1,24 @@
+{
+    "rootParent":String,
+    "graph": {
+        "nodes": [
+            {
+                "id": Number,
+                "value": {
+                    "label": String
+                }
+            }
+        ],
+        "edges": [
+            {
+                "u": Number,
+                "v": Number
+            }
+        ],
+        "type": "digraph"
+    },
+    // equivalent to goal labels
+    "goals":[
+        {"id": Number, "label":String}
+    ]
+}

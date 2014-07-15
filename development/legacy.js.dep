@@ -1,0 +1,115 @@
+/**
+ * Created by Kenneth B on 2014-07-13.
+ */
+
+/* Node REST Boilerplate*/
+
+$scope.node = new Node();
+$scope.nodes = Node.query();
+
+// Deprecated - HTTP based node methods
+/*
+ $scope.node = {nodeNum:Number, label:String};
+
+ // when landing on the page, get all nodes and show them
+ $scope.getNodes = function(){
+ $http.get('/api/node')
+ .success(function(data) {
+ $scope.nodes = data;
+ console.log('nodes-get: '+data);
+ })
+ .error(function(data) {
+ console.log('Error: ' + data);
+ });
+ }
+
+ // when submitting the add form, send the text to the node API
+ $scope.createNode = function(val) {
+
+ var newNode = $scope.node;
+ newNode.label = val;
+ newNode.nodeNum = $scope.getNodes;
+
+ $http.post('/api/node', newNode)
+ .success(function(data) {
+ $scope.nodes = data;
+ console.log('nodes-post: '+data);
+ })
+ .error(function(data) {
+ console.log('Error: ' + data);
+ });
+ };
+
+ // delete a todo after checking it
+ $scope.deleteNode = function(id) {
+ $http.delete('/api/node/' + id)
+ .success(function(data) {
+ $scope.nodes = data;
+ console.log('nodes-dekete: '+data);
+ })
+ .error(function(data) {
+ console.log('Error: ' + data);
+ });
+ };
+ */
+
+$scope.createNode = function(val) {
+    // JSON validation will prevent this from adding needless values
+
+    var newNode = new Node();
+    var nodeNum = $scope.nodes.length; // nodeNum - used for basic edge linkages
+    newNode.nodeNum = nodeNum;
+    newNode.label = val;
+
+    // Give properties to node
+
+    // TODO: Return the location header
+    // http://stackoverflow.com/questions/22898265/get-response-header-in-then-function-of-a-ngresource-objects-promise-propert
+    var defer = $q.defer(); // introduce a promise that will be resolved in the success callback
+    newNode.$save();
+    $scope.nodes.push(newNode);
+};
+$scope.updateNode = function(node) {
+    Node.update(node);
+};
+$scope.deleteNode = function(node) {
+    Node.delete(node);
+    $scope.nodes = _.without($scope.nodes, node);
+};
+
+/* Edge REST Boilerplate */
+
+$scope.edge = new Edge();
+$scope.edges = Edge.query();
+
+// Deprecated - Resource based edge methods
+/*
+ $scope.createEdge = function(val) {
+ // JSON validation will prevent this from adding needless values
+ var newEdge = new Edge();
+ // TODO: Give properties to edge
+ // do $http.get with ID from SourceParent, then
+ // Get nodeNum of parent (search for it; maybe sourceParent should be a node itself with (or a REST pointer); cloned copy of the node from database into transient memory)
+ // Get nodeNum of new Node
+ newEdge.u;
+ newEdge.v;
+
+ newEdge.$save();
+
+ $scope.edges.push(newEdge);
+ };
+ $scope.updateEdge = function(edge) {
+ Edge.update(edge);
+ };
+ $scope.deleteEdge = function(edge) {
+ Edge.delete(edge);
+ $scope.edges = _.without($scope.edges, edge);
+ };
+ */
+
+/* TODO:
+ * Create one for edges
+ * Create one for label reference
+ * Make all of these scale together in the same submission
+ * Encoder of labels with HashIDs, with the salt being the goal label and the encoding string being something? database compression.
+ */

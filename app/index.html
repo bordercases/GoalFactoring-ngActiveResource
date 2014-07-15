@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html lang="en" ng-app="myApp" class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html lang="en" ng-app="myApp" class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html lang="en" ng-app="myApp" class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html lang="en" ng-app="myApp" class="no-js"> <!--<![endif]-->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>GlFctr</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href="bower_components/html5-boilerplate/css/normalize.css">
+    <link rel="stylesheet" href="bower_components/html5-boilerplate/css/main.css">
+    <link rel="stylesheet" href="css/app.css"/>
+    <link rel="stylesheet" href="css/typeahead.css"/>
+    <link href='http://fonts.googleapis.com/css?family=Chivo:900' rel='stylesheet' type='text/css'>
+
+    <script src="bower_components/html5-boilerplate/js/vendor/modernizr-2.6.2.min.js"></script>
+    <script src="bower_components/mixing/dist/mixing.js"></script>
+    <!-- In production use:
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/x.x.x/angular.min.js"></script>
+    -->
+    <script src="bower_components/jquery/dist/jquery.js"></script>
+
+
+    <script src="bower_components/angular/angular.js"></script>
+    <script src="bower_components/angular-route/angular-route.js"></script>
+    <script src="bower_components/angular-resource/angular-resource.js"></script>
+    
+    <script src="bower_components/lodash/dist/lodash.js"></script>
+    <script src="bower_components/async/lib/async.js"></script>
+    <script src="bower_components/active-support/active-support.js"></script>
+    <script src="bower_components/ngActiveResource/dist/ng-active-resource.js"></script>
+
+    <script src="js/app.js"></script>
+    <script src="js/services.js"></script>
+    <script src="js/controllers.js"></script>
+    <script src="js/filters.js"></script>
+    <script src="js/directives.js"></script>
+
+    <script src="bower_components/typeahead.js/dist/typeahead.bundle.js"></script>
+    <script src="bower_components/typeahead.js/dist/typeahead.jquery.js"></script>
+    <script src="bower_components/typeahead.js/dist/bloodhound.js"></script>
+    <script src="bower_components/angular-typeahead/angular-typeahead.js"></script>
+
+</head>
+<body>
+    <span style="font-family: Chivo, sans-serif">
+        <h1>{{"Goal Factoring"|uppercase}}</h1>
+    </span>
+    <div ng-controller="GoalCtrl">
+
+        <div ng-controller="OmnibarCtrl">
+
+            <div id="question-container" ng-switch on="phase">
+                <pre ng-switch-when="0">{{question|uppercase}}?</pre>
+                <pre ng-switch-when="1">{{question|uppercase}} {{sourceGoal|json|uppercase}}?</pre> <!--select parent for display-->
+            </div>
+            <button ng-click="setPhase(0)">0</button>
+            <button ng-click="setPhase(1)">1</button>
+
+            <form ng-submit="submitForm(omnibar)"> <!-- handle submit cases due to phase in controller -->
+                <input sf-typeahead class="typeahead" type="text" id="omnibar" ng-model="omnibar" options="exampleOptions" datasets="exampleData"/>
+
+                <div id="submissions-container" ng-switch on="phase">
+                    <input ng-switch-when="0" type="submit" style="visibility:hidden" /> <!-- TODO: add submit processing function as value-->
+                    <input ng-switch-when="1" type="submit" style="visibility:hidden"/> <!-- TODO: add submit processing function as value-->
+                </div>
+
+            </form>
+
+        </div>
+
+        <br>
+        <br>
+
+        <div ng-controller="DisplayCtrl">
+            <div id="display-container">
+
+                <ul ng-repeat="node in nodes">
+                    <li>{{node}}</li>
+                </ul>
+
+                <p>
+                Phase: {{phase}}
+                <p>
+                Source Goal: {{sourceGoal}}
+                <p>
+                Full Node: {{nodes}}
+
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>

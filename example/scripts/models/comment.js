@@ -16,11 +16,11 @@ angular.module('app')
 
       Comment = ActiveResource.Base.apply(Comment);
       Comment.primaryKey    = "_id";
-      Comment.api.set('http://0.0.0:3000/api');
-      Comment.api.indexURL = 'http://0.0.0:3000/api/comment';
-      Comment.api.showURL = 'http://0.0.0:3000/api/comment';
-      Comment.api.deleteURL = 'http://0.0.0:3000/api/comment/:_id';
-      Comment.api.createURL = 'http://0.0.0:3000/api/comment';
+      Comment.api.set('http://localhost:3000/api');
+      Comment.api.indexURL = 'http://localhost:3000/api/comment';
+      Comment.api.showURL = 'http://localhost:3000/api/comment';
+      Comment.api.deleteURL = 'http://localhost:3000/api/comment/:_id';
+      Comment.api.createURL = 'http://localhost:3000/api/comment';
 
       return Comment;
     }];

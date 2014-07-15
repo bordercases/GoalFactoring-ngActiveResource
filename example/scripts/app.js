@@ -1,6 +1,6 @@
 angular
   .module('app', ['ng', 'ngRoute', 'ActiveResource', 'simpleForm'])
-  .config(['$routeProvider', '$httpProvider', function(Router, $http) {
+  .config(['$routeProvider', '$httpProvider', function(Router, $httpProvider) {
     Router
       .when('/', {
         controller: 'MainCtrl'
@@ -8,6 +8,6 @@ angular
       .when('/post/:title', {
         controller: 'MainCtrl'
       });
-      $http.defaults.useXDomain = true;
-      delete $http.defaults.headers.common['X-Requested-With'];
+      $httpProvider.defaults.useXDomain = true;
+      delete $httpProvider.defaults.headers.common['X-Requested-With'];
   }]);
