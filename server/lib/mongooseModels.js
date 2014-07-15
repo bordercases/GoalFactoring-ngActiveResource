@@ -36,7 +36,7 @@ schema.sensor = new mongoose.Schema({
     required: true
   }
 });
-
+/*
 schema.post = new mongoose.Schema({
   title: {
     type: String
@@ -54,6 +54,15 @@ schema.comment = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     required: true
   }
+});
+*/
+schema.node = new mongoose.Schema({
+    nodeNum: {
+        type: Number
+    },
+    label: {
+        type: String
+    }
 });
 
 odmApi.schema   = schema;

@@ -9,6 +9,50 @@ angular.module('myApp.services', [])
     .value('version', '0.1');// temporarily using ngResource over Express to avoid Express configuration, and to just get prototype running. (Lessons Learned)
 
 angular.module('myApp.data',['ActiveResource'])
+    .provider('Post', function() {
+        this.$get = ['ActiveResource', function(ActiveResource) {
+            function Post(data) {
+                this.title = data.title;
+                this.body  = data.body;
+
+                this.hasMany('comments');
+            };
+
+            Post = ActiveResource.Base.apply(Post);
+            Post.primaryKey = '_id';
+            Post.api.set('http://localhost:3000/api');
+            Post.api.showURL   = 'http://localhost:3000/api/post/[:params]';
+            Post.api.createURL = 'http://localhost:3000/api/post';
+
+            return Post;
+        }];
+    })
+    .provider('Comment', function() {
+        this.$get = ['ActiveResource',
+            function(ActiveResource) {
+
+                function Comment(data) {
+                    this.body   = data.body;
+                    this.author = data.author;
+                    this.belongsTo('post');
+
+                    this.validates({
+                        body:   { presence: true, length: { in: _.range(1, 140) } },
+                        author: { presence: true }
+                    });
+                };
+
+                Comment = ActiveResource.Base.apply(Comment);
+                Comment.primaryKey    = "_id";
+                Comment.api.set('http://localhost:3000/api');
+                Comment.api.indexURL = 'http://localhost:3000/api/comment';
+                Comment.api.showURL = 'http://localhost:3000/api/comment';
+                Comment.api.deleteURL = 'http://localhost:3000/api/comment/:_id';
+                Comment.api.createURL = 'http://localhost:3000/api/comment';
+
+                return Comment;
+            }];
+    })
     .provider('Node', function(){
 
         // TODO: Linking providers and factories: http://weblogs.asp.net/dwahlin/using-an-angularjs-factory-to-interact-with-a-restful-service
@@ -21,35 +65,20 @@ angular.module('myApp.data',['ActiveResource'])
         this.$get = ['ActiveResource', function(ActiveResource) {
 
             function Node(data) {
-                this.number('nodeNum');
-                this.string('label');
-
+                this.nodeNum = data.nodeNum;
+                this.label = data.label;
                 //this.hasMany
-
                 //this.belongsTo('graph');
             }
-            Node.inherits(ActiveResource.Base);
-            Node.api.set('http://api.faculty.com');
-            //Node.dependentDestroy() <- label?
+            Node = ActiveResource.Base.apply(Node);
+            Node.primaryKey = '_id';
+            Node.api.set('http://localhost:3000/api');
+            Node.api.showURL   = 'http://localhost:3000/api/node/[:params]';
+            Node.api.createURL = 'http://localhost:3000/api/node';
+
             return Node;
         }];
 
-    })
-    .provider('Edge', function(){
-        this.$get = ['ActiveResource', function(ActiveResource) {
-            function Edge(data) {
-                this.number('u');
-                this.number('v');
-
-                //this.hasMany
-
-                //this.belongsTo('graph');
-            }
-            Edge.inherits(ActiveResource.Base);
-            Edge.api.set('/api/');
-            //Node.dependentDestroy() <- label?
-            return Edge;
-        }];
     })
     .factory('sharedSession', function(){
         // http://onehungrymind.com/angularjs-communicating-between-controllers/

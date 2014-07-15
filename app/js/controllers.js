@@ -3,45 +3,33 @@
 /* Controllers */
 
 angular.module('myApp.controllers', [])
-    .controller('GoalCtrl', ['$scope', '$route', '$routeParams', '$http', '$q', 'sharedSession', 'Node', function($scope, $route, $routeParams, $http, $q, sharedSession, Node) {
+    .controller('GoalCtrl', ['$scope', '$route', '$routeParams', '$http', '$q', 'sharedSession',
+        function($scope, $route, $routeParams, $http, $q, sharedSession) {
 
         $scope.sharedSession = sharedSession; // TODO: Replaced with system object and sensors?
 
         // Phase - what question and submissions we use
-        $scope.$watch('sharedSession.getPhase()', function(){
-            $scope.phase = sharedSession.getPhase();
-        });
-        $scope.setPhase = function(value){
-            sharedSession.setPhase(value);
-            $scope.phase = sharedSession.getPhase();
-        };
+            $scope.$watch('sharedSession.getPhase()', function(){
+                $scope.phase = sharedSession.getPhase();
+            });
+            $scope.setPhase = function(value){
+                sharedSession.setPhase(value);
+                $scope.phase = sharedSession.getPhase();
+            };
 
         // Source Goal - what the entered goals will link to by default. Can be changed.
-        $scope.$watch('sharedSession.getGetSourceGoal()', function(){
-            $scope.sourceGoal = sharedSession.getSourceGoal();
-        });
-        $scope.setSourceGoal = function(value){
-            sharedSession.setSourceGoal(value);
-            $scope.sourceGoal = sharedSession.getSourceGoal();
-        };
+            $scope.$watch('sharedSession.getGetSourceGoal()', function(){
+                $scope.sourceGoal = sharedSession.getSourceGoal();
+            });
+            $scope.setSourceGoal = function(value){
+                sharedSession.setSourceGoal(value);
+                $scope.sourceGoal = sharedSession.getSourceGoal();
+            };
 
         /* see legacy.js.dep to see what went here before */
         // TODO: Node AJAX interface
-            // Replace comment with actual node properties
-                // _id (hashed), __v
-                // nodeNum, value
-                    // value has label (hashed)
 
-        /*
-        Node.find(nodeId).then(function(response) {
-            $scope.post      = response;
-            //$scope.comment   = $scope.post.comments.new();
 
-            //Comment.after('$save', function() {
-                //$scope.comment = $scope.post.comments.new();
-            //});
-        });
-        */
 
         // TODO: Edge AJAX interface
         // TODO: Label AJAX interface
@@ -49,7 +37,7 @@ angular.module('myApp.controllers', [])
             // TODO: GOAL model containing Node, Edge, Label, session properties
 
     }])
-    .controller('OmnibarCtrl', ['$scope', '$http', 'sharedSession', 'Node', function($scope, $http, sharedSession, Node){
+    .controller('OmnibarCtrl', ['$scope', '$http', 'sharedSession', function($scope, $http, sharedSession){
 
         $scope.actionURL_test = "http://www.google.com/search"; //TODO: Link actionURL to API
         $scope.omnibar = '';
@@ -70,9 +58,7 @@ angular.module('myApp.controllers', [])
 
                     $scope.setSourceGoal(goal);
                     // if a goal with the label given from 'goal' doesn't exist, create it (this method could execute anyway)
-                    var newNode = Node.new({nodeNum: 0, label:goal});
-                    console.log();
-                    console.log(newNode);
+                        // TODO: Create Node
                         // todo: right now assuming that a sourceGoal has never previously existed 9otherwise would not be null), so will create it
                         // todo: however, what if it comes from the autosuggestion case? This assumption only makes sense if sourceGoal is stored somewhere between sessions, which it isn't
 
@@ -84,11 +70,15 @@ angular.module('myApp.controllers', [])
             } else if ($scope.phase == 1) {
                 // Why do you want to do SourceGoal?
                 console.log('submitForm chaged to "Why"');
-                // TODO: write callback of new node to get its properties for the rest of the submit
-                    // http://stackoverflow.com/questions/18564603/angular-resource-and-use-of-interceptor-to-check-response-error-callback
-                    // testing header function
-                //$scope.createEdge(goal);
+                // If New
+                    // TODO: Create Node
+                    // TODO: write callback of new node to get its properties for the rest of the submit
+                        // http://stackoverflow.com/questions/18564603/angular-resource-and-use-of-interceptor-to-check-response-error-callback
+                        // testing header function
+                // If not new, just create edge
+
                 // TODO: Have edges and labels be created here as well
+                //$scope.createEdge(goal);
                     // Is there a way eo ensure this?
             }
         };
