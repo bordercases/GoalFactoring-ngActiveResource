@@ -3,8 +3,8 @@
 /* Controllers */
 
 angular.module('myApp.controllers', [])
-    .controller('GoalCtrl', ['$scope', '$route', '$routeParams', '$http', '$q', 'sharedSession',
-        function($scope, $route, $routeParams, $http, $q, sharedSession) {
+    .controller('GoalCtrl', ['$scope', '$route', '$routeParams', '$http', '$q', 'sharedSession', 'Node',
+        function($scope, $route, $routeParams, $http, $q, sharedSession, Node) {
 
         $scope.sharedSession = sharedSession; // TODO: Replaced with system object and sensors?
 
@@ -28,16 +28,13 @@ angular.module('myApp.controllers', [])
 
         /* see legacy.js.dep to see what went here before */
         // TODO: Node AJAX interface
-
-
-
         // TODO: Edge AJAX interface
         // TODO: Label AJAX interface
         // TODO: Goal AJAX interface
             // TODO: GOAL model containing Node, Edge, Label, session properties
 
     }])
-    .controller('OmnibarCtrl', ['$scope', '$http', 'sharedSession', function($scope, $http, sharedSession){
+    .controller('OmnibarCtrl', ['$scope', '$http', 'sharedSession', 'Node', function($scope, $http, sharedSession, Node){
 
         $scope.actionURL_test = "http://www.google.com/search"; //TODO: Link actionURL to API
         $scope.omnibar = '';
@@ -49,6 +46,7 @@ angular.module('myApp.controllers', [])
         // TODO: might just have to turn this into database driven loading and setting, but use session to keep track of data-binding still
         // setting question type doesn't automatically update $scope.questionType.
 
+        // TODO: Is it possible just to describe the submissions in terms of event bindings?
         $scope.submitForm = function(goal){
             if ($scope.phase == 0){
                 // What do you want to do?
@@ -59,6 +57,9 @@ angular.module('myApp.controllers', [])
                     $scope.setSourceGoal(goal);
                     // if a goal with the label given from 'goal' doesn't exist, create it (this method could execute anyway)
                         // TODO: Create Node
+
+                        var newNode = Node.new({nodeNum:0, label:goal});
+                        console.log('newNode :'+newNode.toJSON());
                         // todo: right now assuming that a sourceGoal has never previously existed 9otherwise would not be null), so will create it
                         // todo: however, what if it comes from the autosuggestion case? This assumption only makes sense if sourceGoal is stored somewhere between sessions, which it isn't
 
@@ -70,8 +71,11 @@ angular.module('myApp.controllers', [])
             } else if ($scope.phase == 1) {
                 // Why do you want to do SourceGoal?
                 console.log('submitForm chaged to "Why"');
+
                 // If New
                     // TODO: Create Node
+                    var newNode = Node.new({nodeNum:0, label:goal});
+                    console.log('newNode :'+newNode.toJSON());
                     // TODO: write callback of new node to get its properties for the rest of the submit
                         // http://stackoverflow.com/questions/18564603/angular-resource-and-use-of-interceptor-to-check-response-error-callback
                         // testing header function
