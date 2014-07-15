@@ -58,9 +58,12 @@ angular.module('myApp.controllers', [])
                     // if a goal with the label given from 'goal' doesn't exist, create it (this method could execute anyway)
                         // TODO: Create Node
 
-                        var newNode = Node.new({nodeNum:0, label:goal}).$save();
+                        var newNode = Node.new({nodeNum:'0', label:goal}).$save();
                         console.log('newNode :'+newNode);
-                        console.log('all nodes :'+Node.all());
+                        Node.where({nodeNum: '0'}).then(function(response){
+                            console.log('all nodes :'+response.length);
+                        });
+
 
                         // todo: right now assuming that a sourceGoal has never previously existed 9otherwise would not be null), so will create it
                         // todo: however, what if it comes from the autosuggestion case? This assumption only makes sense if sourceGoal is stored somewhere between sessions, which it isn't
@@ -76,10 +79,11 @@ angular.module('myApp.controllers', [])
 
                 // If New
                     // TODO: Create Node
-                    var newNode = Node.new({nodeNum:0, label:goal}).$save();
+                    var newNode = Node.new({nodeNum:'0', label:goal}).$save(); // weird - it takes the string for nodeNum but it's an integer in the database
                     console.log('newNode :'+newNode);
-                    var allNodes = Node.all()
-                    console.log('all nodes :'+allNodes);
+                    Node.where({nodeNum: '0'}).then(function(response){
+                        console.log('all nodes :'+response.length);
+                    });
 
                     // TODO: write callback of new node to get its properties for the rest of the submit
                         // http://stackoverflow.com/questions/18564603/angular-resource-and-use-of-interceptor-to-check-response-error-callback

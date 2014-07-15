@@ -73,7 +73,8 @@ angular.module('myApp.data',['ActiveResource'])
             Node = ActiveResource.Base.apply(Node);
             Node.primaryKey = '_id';
             Node.api.set('http://localhost:3000/api');
-            Node.api.indexURL = 'http://localhost:3000/api/all-nodes';
+            Node.api.whereURL = 'http://localhost:3000/api/node'
+            Node.api.indexURL = 'http://localhost:3000/api/node';
             Node.api.showURL   = 'http://localhost:3000/api/node/[:params]';
             Node.api.createURL = 'http://localhost:3000/api/node';
 
