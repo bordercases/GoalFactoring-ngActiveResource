@@ -6,7 +6,7 @@ var mongoose = require('mongoose'),
     pass: process.env.MONGODB_PASS,
     host: process.env.MONGODB_HOST || 'localhost',
     port: process.env.MONGODB_PORT || '27017',
-    db: process.env.MONGODB_DB || 'activeresource'
+    db: process.env.MONGODB_DB || 'db'
   }, user = '';
 
 if (process.env.MONGOLAB_URI) {
