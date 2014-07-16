@@ -62,5 +62,17 @@ facultyAPI.addResource({
     collection: db.node
 });
 
+facultyAPI.addResource({
+    app: app,
+    resourceName: 'edge',
+    collection: db.edge
+});
+
+facultyAPI.addResource({
+    app: app,
+    resourceName: 'graph',
+    collection: db.graph
+});
+
 app.set('port', process.env.PORT || 3000);
 

@@ -65,6 +65,24 @@ schema.node = new mongoose.Schema({
     }
 });
 
+schema.edge = new mongoose.Schema({
+    u: {
+        type: Number
+    },
+    v: {
+        type: Number
+    }
+});
+
+schema.graph = new mongoose.Schema({
+    u: {
+        type: Number
+    },
+    v: {
+        type: Number
+    }
+});
+
 odmApi.schema   = schema;
 odmApi.mongoose = mongoose;
 for (var i in schema) {

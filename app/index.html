@@ -77,11 +77,19 @@
 
         <div ng-controller="DisplayCtrl">
             <div id="display-container">
+                <span><h2>{{'Interface'|uppercase}}</h2></span>
+                <p>Goal Dump:</p>
+                {{sourceGoal.label}}
+                <dl ng-repeat="node in nodes" ng-show="!$first">
+                    <dd>{{node.label}}</dd>
+                </dl>
 
+                <p>Raw Goal Data</p>
                 <ul ng-repeat="node in nodes">
                     <li>{{node}}</li>
                 </ul>
 
+                <span><h2>{{'Data Dump'|uppercase}}</h2></span>
                 <p>
                 Phase: {{phase}}
                 <p>
@@ -91,9 +99,7 @@
                 <p>
                 Node Count: {{nodecount}}
 
-                <ul ng-repeat="node in nodes">
-                    <li>{{node.label}}</li>
-                </ul>
+
 
             </div>
         </div>

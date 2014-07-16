@@ -41,6 +41,7 @@ angular.module('myApp.controllers', [])
         };
             setSessionScope();
         function setGraphScope()   {
+            // TODO: Migrate all of these to factory/providers
         // TODO: Node AJAX interface
 
             var baseNodes = Restangular.all('node');
@@ -74,6 +75,37 @@ angular.module('myApp.controllers', [])
             }
 
         // TODO: Edge AJAX interface
+
+            var baseEdges = Restangular.all('edge');
+            baseEdges.getList().then(function(response){
+                $scope.allEdges = response;
+                //$scope.edgecount = response.length;
+            });
+
+            // Does a GET to /edges
+            // Retirms an empty array to default. Once a value is returned from the server
+            // that array is filled with those values. So you can use this in your template
+            $scope.edges = baseEdges.getList().$object;
+
+            $scope.newEdge = function(node_in, node_out){
+                var edgeContent = {u: node_in, v: node_out};
+
+                baseEdges.post(edgeContent).then(function(newEdge) {
+
+                    // it looks like that I need to do databinding manually for these items.
+
+                    $scope.edges = baseEdges.getList().$object;
+                    baseEdges.getList().then(function(response){
+                        $scope.allEdges = response;
+                        //$scope.edgecount = response.length;
+                    });
+
+                }, function error(reason) {
+                    // An error has occurred
+                });
+
+            }
+
         // TODO: Label AJAX interface
         // TODO: Graph AJAX interface
             // TODO: Graph model containing Node, Edge, Label, session properties
@@ -85,6 +117,28 @@ angular.module('myApp.controllers', [])
         $scope.omnibar = '';
         // TODO: Is it possible just to describe the submissions in terms of event bindings?
 
+        function setSessionScope() {
+            $scope.sharedSession = sharedSession; // TODO: Replaced with system object and sensors?
+            // Phase - what question and submissions we use
+            $scope.$watch('sharedSession.getPhase()', function(){
+                $scope.phase = sharedSession.getPhase();
+            });
+            $scope.setPhase = function(value){
+                sharedSession.setPhase(value);
+                $scope.phase = sharedSession.getPhase();
+            };
+
+            // Source Goal - what the entered goals will link to by default. Can be changed.
+            $scope.$watch('sharedSession.getGetSourceGoal()', function(){
+                $scope.sourceGoal = sharedSession.getSourceGoal();
+            });
+            $scope.setSourceGoal = function(value){
+                sharedSession.setSourceGoal(value);
+                $scope.sourceGoal = sharedSession.getSourceGoal();
+            };
+        };
+            setSessionScope();
+
         $scope.submitForm = function(goal){
 
             if ($scope.phase == 0) { // TODO: Phase 0 goal additions are adding goals twice to the database
@@ -92,18 +146,14 @@ angular.module('myApp.controllers', [])
 
                 if (!$scope.sourceGoal) {
 
-                    var newSourceGoal = { nodeCount: JSON.stringify($scope.nodecount), label: goal };
+                    var newSourceGoal = { nodeNum: JSON.stringify($scope.nodecount), label: goal };
                     $scope.newNode      (JSON.stringify($scope.nodecount), goal);
                     $scope.setSourceGoal(newSourceGoal);
 
                 } else {
-
                     $scope.setSourceGoal(goal); // get the result as a node and cache it
-
                 }
-
                 $scope.setPhase(1);
-
             }
 
             else if ($scope.phase == 1) { // setting it as an 'else' clause otherwise posts occur twice with identical submissions
@@ -113,8 +163,8 @@ angular.module('myApp.controllers', [])
 
                 console.log(JSON.stringify($scope.nodecount));
 
-                var newGoal = { nodeCount: JSON.stringify($scope.nodecount), label: goal };
-                $scope.newNode      (newGoal.nodeCount, newGoal.label);
+                var newGoal = { nodeNum: JSON.stringify($scope.nodecount), label: goal };
+                $scope.newNode(newGoal.nodeNum, newGoal.label);
 
                     // TODO: write callback of new node to get its properties for the rest of the submit
                         // http://stackoverflow.com/questions/18564603/angular-resource-and-use-of-interceptor-to-check-response-error-callback
@@ -122,7 +172,8 @@ angular.module('myApp.controllers', [])
                 // If not new/selected from autosuggestion just create edge
 
                 // TODO: Have edges and labels be created here as well
-                //$scope.createEdge(goal);
+                console.log($scope.sourceGoal, $scope.sourceGoal.nodeNum);
+                $scope.newEdge($scope.sourceGoal.nodeNum , newGoal.nodeNum);
                     // Is there a way eo ensure this?
             }
         };
