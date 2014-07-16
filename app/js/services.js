@@ -65,6 +65,7 @@ angular.module('myApp.data',['ActiveResource'])
         this.$get = ['ActiveResource', function(ActiveResource) {
 
             function Node(data) {
+                this.count = true; // hack to make sure I can count the number of nodes successfully until I can get Node.all() to work
                 this.nodeNum = data.nodeNum;
                 this.label = data.label;
                 //this.hasMany
