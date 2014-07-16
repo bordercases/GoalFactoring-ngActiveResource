@@ -42,19 +42,35 @@ angular.module('myApp.controllers', [])
             setSessionScope();
         function setGraphScope()   {
         // TODO: Node AJAX interface
+
             var baseNodes = Restangular.all('node');
-            baseNodes.getList().then(function(nodes){
-               $scope.allNodes = nodes;
+             baseNodes.getList().then(function(response){
+                 $scope.allNodes = response;
+                 $scope.nodecount = response.length;
             });
 
             // Does a GET to /nodes
             // Retirms an empty array to default. Once a value is returned from the server
             // that array is filled with those values. So you can use this in your template
-            $scope.nodes = Restangular.all('node').getList().$object;
+            $scope.nodes = baseNodes.getList().$object;
 
-            function newNode(nodeNum, label){
-                var node = {nodeNum: nodeNum, label: label}
-                baseNodes.post(node);
+            $scope.newNode = function(nodeNum, goal){
+                var nodeContent = {nodeNum: nodeNum, label: goal};
+
+                baseNodes.post(nodeContent).then(function(newNd) {
+
+                    // it looks like that I need to do databinding manually for these items.
+
+                    $scope.nodes = baseNodes.getList().$object;
+                    baseNodes.getList().then(function(response){
+                        $scope.allNodes = response;
+                        $scope.nodecount = response.length;
+                    });
+
+                }, function error(reason) {
+                    // An error has occurred
+                });
+
             }
 
         // TODO: Edge AJAX interface
@@ -71,23 +87,39 @@ angular.module('myApp.controllers', [])
 
         $scope.submitForm = function(goal){
 
-            if ($scope.phase == 0) {
+            if ($scope.phase == 0) { // TODO: Phase 0 goal additions are adding goals twice to the database
                 // What do you want to do?
+
                 if (!$scope.sourceGoal) {
+
+                    var newSourceGoal = { nodeCount: JSON.stringify($scope.nodecount), label: goal };
+                    $scope.newNode      (JSON.stringify($scope.nodecount), goal);
+                    $scope.setSourceGoal(newSourceGoal);
+
                 } else {
-                    $scope.setSourceGoal(goal);
+
+                    $scope.setSourceGoal(goal); // get the result as a node and cache it
+
                 }
+
                 $scope.setPhase(1);
+
             }
 
-            if ($scope.phase == 1) {
+            else if ($scope.phase == 1) { // setting it as an 'else' clause otherwise posts occur twice with identical submissions
                 // Why do you want to do SourceGoal?
 
+                // If new label/entered field
+
+                console.log(JSON.stringify($scope.nodecount));
+
+                var newGoal = { nodeCount: JSON.stringify($scope.nodecount), label: goal };
+                $scope.newNode      (newGoal.nodeCount, newGoal.label);
 
                     // TODO: write callback of new node to get its properties for the rest of the submit
                         // http://stackoverflow.com/questions/18564603/angular-resource-and-use-of-interceptor-to-check-response-error-callback
                         // testing header function
-                // If not new, just create edge
+                // If not new/selected from autosuggestion just create edge
 
                 // TODO: Have edges and labels be created here as well
                 //$scope.createEdge(goal);

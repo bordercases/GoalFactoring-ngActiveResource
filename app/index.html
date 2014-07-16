@@ -55,7 +55,7 @@
 
             <div id="question-container" ng-switch on="phase">
                 <pre ng-switch-when="0">{{question|uppercase}}?</pre>
-                <pre ng-switch-when="1">{{question|uppercase}} {{sourceGoal|json|uppercase}}?</pre> <!--select parent for display-->
+                <pre ng-switch-when="1">{{question|uppercase}} {{sourceGoal.label|json|uppercase}}?</pre> <!--select parent for display-->
             </div>
             <button ng-click="setPhase(0)">0</button>
             <button ng-click="setPhase(1)">1</button>
@@ -87,7 +87,13 @@
                 <p>
                 Source Goal: {{sourceGoal}}
                 <p>
-                Full Node: {{nodes}}
+                Full Node: {{allNodes}}
+                <p>
+                Node Count: {{nodecount}}
+
+                <ul ng-repeat="node in nodes">
+                    <li>{{node.label}}</li>
+                </ul>
 
             </div>
         </div>
