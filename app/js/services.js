@@ -8,7 +8,17 @@
 angular.module('myApp.services', [])
     .value('version', '0.1');// temporarily using ngResource over Express to avoid Express configuration, and to just get prototype running. (Lessons Learned)
 
-angular.module('myApp.data',['ActiveResource'])
+angular.module('myApp.data',[])
+    /* Restangular
+    .provider('Node', function(){
+        function Node(){
+            var nodes = Restangular.all('nodes');
+        }
+        return Node;
+    })
+    */
+    // TODO: ngAngularResource implementation. Phasing our for Restangular.
+    /*
     .provider('Post', function() {
         this.$get = ['ActiveResource', function(ActiveResource) {
             function Post(data) {
@@ -83,6 +93,7 @@ angular.module('myApp.data',['ActiveResource'])
         }];
 
     })
+    */
     .factory('sharedSession', function(){
         // http://onehungrymind.com/angularjs-communicating-between-controllers/
         // I'll start out without any reference to scope.

@@ -3,8 +3,8 @@
 /* Controllers */
 
 angular.module('myApp.controllers', [])
-    .controller('GoalCtrl', ['$scope', '$route', '$routeParams', '$http', '$q', 'sharedSession', 'Node',
-        function($scope, $route, $routeParams, $http, $q, sharedSession, Node) {
+    .controller('GoalCtrl', ['$scope', '$route', '$routeParams', '$http', '$q', 'sharedSession', 'Restangular',
+        function($scope, $route, $routeParams, $http, $q, sharedSession, Restangular) {
 
         setTimeout(function() {
             // TODO: Select graph by user
@@ -16,6 +16,7 @@ angular.module('myApp.controllers', [])
             // TODO: Select session by user
                 // Define session
                 // Migrate session factory to Resource model after figuring out graph
+
         }, 0);
 
         function setSessionScope() {
@@ -37,61 +38,50 @@ angular.module('myApp.controllers', [])
                 sharedSession.setSourceGoal(value);
                 $scope.sourceGoal = sharedSession.getSourceGoal();
             };
-        }
+        };
+            setSessionScope();
         function setGraphScope()   {
-        /* see legacy.js.dep to see what went here before */
         // TODO: Node AJAX interface
+            var baseNodes = Restangular.all('node');
+            baseNodes.getList().then(function(nodes){
+               $scope.allNodes = nodes;
+            });
+
+            // Does a GET to /nodes
+            // Retirms an empty array to default. Once a value is returned from the server
+            // that array is filled with those values. So you can use this in your template
+            $scope.nodes = Restangular.all('node').getList().$object;
+
+            function newNode(nodeNum, label){
+                var node = {nodeNum: nodeNum, label: label}
+                baseNodes.post(node);
+            }
+
         // TODO: Edge AJAX interface
         // TODO: Label AJAX interface
         // TODO: Graph AJAX interface
             // TODO: Graph model containing Node, Edge, Label, session properties
 
         };
+            setGraphScope();
     }])
-    .controller('OmnibarCtrl', ['$scope', '$http', 'sharedSession', 'Node', function($scope, $http, sharedSession, Node){
-
-        $scope.actionURL_test = "http://www.google.com/search"; //TODO: Link actionURL to API
+    .controller('OmnibarCtrl', ['$scope', '$http', 'sharedSession', function($scope, $http, sharedSession){
         $scope.omnibar = '';
         // TODO: Is it possible just to describe the submissions in terms of event bindings?
+
         $scope.submitForm = function(goal){
-            if ($scope.phase == 0){
+
+            if ($scope.phase == 0) {
                 // What do you want to do?
-                console.log('submitForm chaged to "What"');
-                // TODO: Only active on autoselection?
                 if (!$scope.sourceGoal) {
-
-                    $scope.setSourceGoal(goal);
-                    // if a goal with the label given from 'goal' doesn't exist, create it (this method could execute anyway)
-                        // TODO: Create Node
-                        Node.where({count:true}).then(function(response){
-                            sharedSession.setNodeCount(response.length)
-                            return response.length});
-                        console.log('nodeCount'+ $scope.nodeCount);
-                        var newNode = Node.new({nodeNum:'0', label:goal}).$save();
-                        console.log('newNode :'+newNode);
-
-
-
-                        // todo: right now assuming that a sourceGoal has never previously existed 9otherwise would not be null), so will create it
-                        // todo: however, what if it comes from the autosuggestion case? This assumption only makes sense if sourceGoal is stored somewhere between sessions, which it isn't
-
                 } else {
                     $scope.setSourceGoal(goal);
                 }
                 $scope.setPhase(1);
+            }
 
-            } else if ($scope.phase == 1) {
+            if ($scope.phase == 1) {
                 // Why do you want to do SourceGoal?
-                console.log('submitForm chaged to "Why"');
-
-                // If New
-                    // TODO: Create Node
-                Node.where({count:true}).then(function(response){
-                    sharedSession.setNodeCount(response.length)
-                    return response.length});
-                console.log('nodeCount'+ $scope.nodeCount);
-                var newNode = Node.new({nodeNum:'0', label:goal}).$save();
-                console.log('newNode :'+newNode);
 
 
                     // TODO: write callback of new node to get its properties for the rest of the submit
@@ -119,7 +109,7 @@ angular.module('myApp.controllers', [])
                 $scope.question = questions[$scope.phase];
             });
         }
-        setupQuestions();
+            setupQuestions();
         function setupOmnibar()   {
             // Instantiate the bloodhound suggestion engine
             var initBar = function ($scope) {
@@ -228,8 +218,8 @@ angular.module('myApp.controllers', [])
             };
             initEventBinding($scope);
         }
-        setupOmnibar();
-        
+            setupOmnibar();
+
     }])
     .controller('DisplayCtrl',['$scope', 'sharedSession', function($scope, sharedSession){
     }]);
