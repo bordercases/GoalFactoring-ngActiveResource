@@ -3,8 +3,70 @@
 /* Controllers */
 
 angular.module('myApp.controllers', [])
-    .controller('GoalCtrl', ['$scope', '$route', '$routeParams', '$http', '$q', 'sharedSession', 'Node',
-        function($scope, $route, $routeParams, $http, $q, sharedSession, Node) {
+    .controller('D3BarCtrl', ['$scope', function($scope){
+        $scope.greeting = "Resize the page to see the re-rendering";
+
+        $scope.onClick = function(item){ // Notice that we need to use $scope.$apply() here. This is because the onClick event happens outside the current angular context.
+            $scope.$apply(function(){
+                if(!$scope.showDetailPanel) {
+                    $scope.showDetailPanel = true;
+                    $scope.detailItem = item;
+                }
+            });
+        };
+
+        $scope.data = [
+            {name: "Greg", score: 98},
+            {name: "Ari", score: 96},
+            {name: 'Q', score: 75},
+            {name: "Jeremy", score: 48}
+        ];
+
+    }])
+    .controller('D3GraphCtrl', ['$scope', '$http', function($scope, $http){
+        $scope.data = $http.get("./models/goals-mis.json");
+    }])
+    /*
+     How about fetching data over XHR? Both AngularJS and D3 can support fetching data across the wire.
+     By using the AngularJS method of fetching data, we get the power of the auto-resolving promises.
+     That is to say, we don’t need to modify our workflow at all, other than setting our data in our controller to be fetched over XHR.
+     */
+    /*
+    .controller('ESPNBarCtrl', ['$scope', '$http',
+        function($scope, $http) {
+            $http({
+                method: 'JSONP',
+                url: 'http://ajax.googleapis.com/ajax/services/feed/load?v=1.0&callback=JSON_CALLBACK&num=10&q=' +
+                    encodeURIComponent('http://sports.espn.go.com/espn/rss/espnu/news')
+            }).then(function(data, status) {
+                var entries = data.data.responseData.feed.entries,
+                    wordFreq = {},
+                    data = [];
+
+                angular.forEach(entries, function(article) {
+                    angular.forEach(article.content.split(' '), function(word) {
+                        if (word.length > 3) {
+                            if (!wordFreq[word]) {
+                                wordFreq[word] = {score: 0, link: article.link};
+                            }
+                            wordFreq[word].score += 1;
+                        }
+                    });
+                });
+                for (key in wordFreq) {
+                    data.push({
+                        name: key,
+                        score: wordFreq[key].score,
+                        link: wordFreq[key].link
+                    });
+                }
+                data.sort(function(a,b) { return b.score - a.score; })
+                $scope.data = data.slice(0, 5);
+            });
+        }])
+    */
+    .controller('GoalCtrl', ['$scope', '$route', '$routeParams', '$http', '$q', 'sharedSession', 'Restangular',
+        function($scope, $route, $routeParams, $http, $q, sharedSession, Restangular) {
 
         setTimeout(function() {
             // TODO: Select graph by user
@@ -16,6 +78,7 @@ angular.module('myApp.controllers', [])
             // TODO: Select session by user
                 // Define session
                 // Migrate session factory to Resource model after figuring out graph
+
         }, 0);
 
         function setSessionScope() {
@@ -37,72 +100,190 @@ angular.module('myApp.controllers', [])
                 sharedSession.setSourceGoal(value);
                 $scope.sourceGoal = sharedSession.getSourceGoal();
             };
-        }
+        };
+            setSessionScope();
+
         function setGraphScope()   {
-        /* see legacy.js.dep to see what went here before */
+            // TODO: Migrate all of these to factory/providers
+
         // TODO: Node AJAX interface
+
+            var baseNodes = Restangular.all('node');
+             baseNodes.getList().then(function(response){
+                 $scope.allNodes = response;
+                 $scope.nodecount = response.length;
+            });
+
+            // Does a GET to /nodes
+            // Retirms an empty array to default. Once a value is returned from the server
+            // that array is filled with those values. So you can use this in your template
+            $scope.nodes = baseNodes.getList().$object;
+
+            $scope.newNode = function(nodeNum, goal){
+                var nodeContent = {nodeNum: nodeNum, label: goal};
+
+                baseNodes.post(nodeContent).then(function(newNd) {
+
+                    // it looks like that I need to do databinding manually for these items.
+
+                    $scope.nodes = baseNodes.getList().$object;
+                    baseNodes.getList().then(function(response){
+                        $scope.allNodes = response;
+                        $scope.nodecount = response.length;
+                        $scope.graph.nodes = $scope.nodes;
+                    });
+
+                }, function error(reason) {
+                    // An error has occurred
+                });
+
+            };
+            // TODO: Graph Passback Method
+
         // TODO: Edge AJAX interface
-        // TODO: Label AJAX interface
-        // TODO: Graph AJAX interface
-            // TODO: Graph model containing Node, Edge, Label, session properties
+
+            var baseEdges = Restangular.all('edge');
+            baseEdges.getList().then(function(response){
+                $scope.allEdges = response;
+                //$scope.edgecount = response.length;
+            });
+
+            // Does a GET to /edges
+            // Retirms an empty array to default. Once a value is returned from the server
+            // that array is filled with those values. So you can use this in your template
+            $scope.edges = baseEdges.getList().$object;
+
+            $scope.newEdge = function(node_in, node_out){
+                var edgeContent = {u: node_in, v: node_out};
+
+                baseEdges.post(edgeContent).then(function(newEdge) {
+
+                    // it looks like that I need to do databinding manually for these items.
+
+                    $scope.edges = baseEdges.getList().$object;
+                    baseEdges.getList().then(function(response){
+                        $scope.allEdges = response;
+                        $scope.graph.edges = $scope.edges;
+                    });
+
+                }, function error(reason) {
+                    // An error has occurred
+                });
+            };
+            // TODO: Graph Passback Method
+
+            // TODO: Label AJAX interface
+
+            /* TODO: Replacing the AJAX interface for Graph temporarily - just using a basic json object to get to the money features faster
+            // TODO: Graph AJAX interface
+            var baseGraph = Restangular.all('graph');
+            var thisGraph = Restangular.one('graph','12358'); // second param is userID
+
+            var thisNodes = thisGraph.getList('nodes');
+            var thisEdges= thisGraph.getList('edges');
+
+            baseGraph.getList().then(function(response){
+                $scope.allGraphs = response;
+            });
+
+            $scope.newGraph = function(nodes,edges){
+                // expecting arrays of nodes and edges
+            }
+            $scope.updateGraph = function(nodes,edges){
+
+            }
+                // TODO: Graph model containing Node, Edge, Label, session properties
+            */
+
+            // GRAPH OBJECT
+                // Can't be saved yet, not a REST object, but dead, dead simple.
+            $scope.graph = {"nodes":$scope.nodes, "edges":$scope.edges};
 
         };
-    }])
-    .controller('OmnibarCtrl', ['$scope', '$http', 'sharedSession', 'Node', function($scope, $http, sharedSession, Node){
+            setGraphScope();
 
-        $scope.actionURL_test = "http://www.google.com/search"; //TODO: Link actionURL to API
+    }])
+    .controller('OmnibarCtrl', ['$scope', '$http', 'sharedSession', function($scope, $http, sharedSession){
         $scope.omnibar = '';
         // TODO: Is it possible just to describe the submissions in terms of event bindings?
+
+        function setSessionScope() {
+            $scope.sharedSession = sharedSession; // TODO: Replaced with system object and sensors?
+            // Phase - what question and submissions we use
+            $scope.$watch('sharedSession.getPhase()', function(){
+                $scope.phase = sharedSession.getPhase();
+            });
+            $scope.setPhase = function(value){
+                sharedSession.setPhase(value);
+                $scope.phase = sharedSession.getPhase();
+            };
+
+            // Source Goal - what the entered goals will link to by default. Can be changed.
+            $scope.$watch('sharedSession.getGetSourceGoal()', function(){
+                $scope.sourceGoal = sharedSession.getSourceGoal();
+            });
+            $scope.setSourceGoal = function(value){
+                sharedSession.setSourceGoal(value);
+                $scope.sourceGoal = sharedSession.getSourceGoal();
+            };
+        };
+            setSessionScope();
+
         $scope.submitForm = function(goal){
-            if ($scope.phase == 0){
+            // TODO: Redo submit logic to be sparser
+                // i.e. sparsely create goal if it doesn't already exist, and then set; instead of only creating the goal if there is no source goal already.
+
+            // CREATE GOAL LOGIC HERE
+                // if new submission, make it and set as active goal
+                // Otherwise, set query as active goal
+                // check what phase it is and handle the active goal
+                    // phase 0: set as source goal and end
+                    // phase 1: connect active goal to source goal via an edge
+                // clear all variables
+            // this way I can create goals at any stage, instead of e.g. creating goals and then setting them as parents. lateral expansion
+                // how will the d3 visualization handle this?
+            // TODO: to prevent label duplication, enforce letter case
+
+            if ($scope.phase == 0) {
                 // What do you want to do?
-                console.log('submitForm chaged to "What"');
-                // TODO: Only active on autoselection?
+                // if
+
                 if (!$scope.sourceGoal) {
 
-                    $scope.setSourceGoal(goal);
-                    // if a goal with the label given from 'goal' doesn't exist, create it (this method could execute anyway)
-                        // TODO: Create Node
-                        Node.where({count:true}).then(function(response){
-                            sharedSession.setNodeCount(response.length)
-                            return response.length});
-                        console.log('nodeCount'+ $scope.nodeCount);
-                        var newNode = Node.new({nodeNum:'0', label:goal}).$save();
-                        console.log('newNode :'+newNode);
-
-
-
-                        // todo: right now assuming that a sourceGoal has never previously existed 9otherwise would not be null), so will create it
-                        // todo: however, what if it comes from the autosuggestion case? This assumption only makes sense if sourceGoal is stored somewhere between sessions, which it isn't
+                    var newSourceGoal = { nodeNum: JSON.stringify($scope.nodecount), label: goal };
+                    $scope.newNode      (JSON.stringify($scope.nodecount), goal);
+                    $scope.setSourceGoal(newSourceGoal);
 
                 } else {
-                    $scope.setSourceGoal(goal);
+
+                    $scope.setSourceGoal(goal); // get the result as a node and cache it
+
                 }
+
+                // TODO: Refuse to go to phase 1 until we have a sourceGoal
                 $scope.setPhase(1);
 
-            } else if ($scope.phase == 1) {
-                // Why do you want to do SourceGoal?
-                console.log('submitForm chaged to "Why"');
-
-                // If New
-                    // TODO: Create Node
-                Node.where({count:true}).then(function(response){
-                    sharedSession.setNodeCount(response.length)
-                    return response.length});
-                console.log('nodeCount'+ $scope.nodeCount);
-                var newNode = Node.new({nodeNum:'0', label:goal}).$save();
-                console.log('newNode :'+newNode);
-
-
-                    // TODO: write callback of new node to get its properties for the rest of the submit
-                        // http://stackoverflow.com/questions/18564603/angular-resource-and-use-of-interceptor-to-check-response-error-callback
-                        // testing header function
-                // If not new, just create edge
-
-                // TODO: Have edges and labels be created here as well
-                //$scope.createEdge(goal);
-                    // Is there a way eo ensure this?
             }
+
+            else if ($scope.phase == 1) { // setting it as an 'else' clause otherwise posts occur twice with identical submissions
+                // Why do you want to do SourceGoal?
+                var connectNode;
+
+                // If new label/entered field, create newGoal and set as our connectNode
+                if (true){ // plain old new pojo code detection here
+                    var newGoal = { nodeNum: JSON.stringify($scope.nodecount), label: goal };
+                    connectNode = newGoal;
+                    $scope.newNode(newGoal.nodeNum, newGoal.label);
+                }
+                // If not new/selected from autosuggestion, set connectNode to contain the nodeNum of the suggestion
+                else if (true) { // autosuggestion submission detection code here
+                    // autosuggestion handling code here
+                }
+
+                $scope.newEdge($scope.sourceGoal.nodeNum , connectNode.nodeNum);
+
+            }
+
         };
 
         function setupQuestions() {
@@ -119,7 +300,8 @@ angular.module('myApp.controllers', [])
                 $scope.question = questions[$scope.phase];
             });
         }
-        setupQuestions();
+            setupQuestions();
+
         function setupOmnibar()   {
             // Instantiate the bloodhound suggestion engine
             var initBar = function ($scope) {
@@ -168,6 +350,7 @@ angular.module('myApp.controllers', [])
             initBar($scope);
 
             var initEventBinding = function ($scope) {
+
                 $('.input#omnibar').keydown(function (e) {
                     e.preventDefault();
                 }).keyup(function(e){
@@ -175,6 +358,7 @@ angular.module('myApp.controllers', [])
                 }).keypress(function(e){
                     e.preventDefault();
                 });
+
                 /*
                 /* These events trigger submissions through REST routing to DataCtrl
                  * DataCtrl will update the bound items to it, like the Bloodhound stuff
@@ -228,8 +412,8 @@ angular.module('myApp.controllers', [])
             };
             initEventBinding($scope);
         }
-        setupOmnibar();
-        
+            setupOmnibar();
+
     }])
     .controller('DisplayCtrl',['$scope', 'sharedSession', function($scope, sharedSession){
     }]);
