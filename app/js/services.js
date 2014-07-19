@@ -8,6 +8,55 @@
 angular.module('myApp.services', [])
     .value('version', '0.1');// temporarily using ngResource over Express to avoid Express configuration, and to just get prototype running. (Lessons Learned)
 
+// d3 Module - based on http://www.ng-newsletter.com/posts/d3-on-angular.html
+angular.module('d3',[])
+    .factory('d3Service', ['$document', '$q', '$rootScope',
+        function($document, $q, $rootScope) {
+            var d = $q.defer();
+            function onScriptLoad() {
+                // Load client in the browser
+                $rootScope.$apply(function() { d.resolve(window.d3); });
+            }
+            // Create a script tag with d3 as the source
+            // and call our onScriptLoad callback when it
+            // has been loaded
+            var scriptTag = $document[0].createElement('script');
+            scriptTag.type = 'text/javascript';
+            scriptTag.async = true;
+            scriptTag.src = 'http://d3js.org/d3.v3.min.js';
+            scriptTag.onreadystatechange = function () {
+                if (this.readyState == 'complete') onScriptLoad();
+            }
+            scriptTag.onload = onScriptLoad;
+
+            var s = $document[0].getElementsByTagName('body')[0];
+            s.appendChild(scriptTag);
+
+            return {
+                d3: function() { return d.promise; }
+            };
+        }])
+        /*
+         Extending your own d3 directives
+
+         Lastly, if we’re going to use d3 for any longer period of time, it’s inevitable that we’ll want to provide easier methods of creating extensions on our d3 object.
+
+         We can extend our own d3 service by applying commonly used functions on to it using the decorator pattern. AngularJS makes this easy to do using the $provide service.
+         */
+        .config(['$provide', function($provide) {
+
+            var customDecorator = function($delegate) {
+                var d3Service = $delegate;
+                d3Service.d3().then(function(d3) {
+                    // build our custom functions on the d3
+                    // object here
+                });
+
+                return d3Service; // important to return the service
+            };
+
+            $provide.decorator('d3Service', customDecorator);
+        }]);
 angular.module('myApp.data',[])
     /* Restangular
     .provider('Node', function(){

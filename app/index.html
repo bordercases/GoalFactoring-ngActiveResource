@@ -14,6 +14,19 @@
     <link rel="stylesheet" href="../html5-boilerplate/css/main.css">
     <link rel="stylesheet" href="css/app.css"/>
     <link rel="stylesheet" href="css/typeahead.css"/>
+    <style>
+        /* graph styling */
+        .node {
+            stroke: #fff;
+            stroke-width: 1.5px;
+        }
+
+        .link {
+            fill:none;
+            stroke: #bbb;
+            stroke-opacity: .6;
+        }
+    </style>
     <link href='http://fonts.googleapis.com/css?family=Chivo:900' rel='stylesheet' type='text/css'>
 
     <script src="../html5-boilerplate/js/vendor/modernizr-2.6.2.min.js"></script>
@@ -46,9 +59,42 @@
 
 </head>
 <body>
+
+    <div ng-controller="D3BarCtrl" on-click="showDetailPanel(item)">
+
+        <h2>{{greeting|uppercase}}</h2>
+        <d3-bars data="data" on-click="d3OnClick(item)"></d3-bars>
+
+        <table> <!-- I can apply the principles behind this table to my edge/goal display -->
+            <thead>
+            <tr><th colspan="4">Try editing the values of the data attribute</th></tr>
+            </thead>
+            <tbody>
+            <tr ng-repeat="obj in data">
+                <td>Name:</td><td><input ng-model="data[$index].name" type="text" placeholder="Name" /></td>
+                <td>Score</td><td><input ng-model="data[$index].score" type="number" min="1" placeholder="Score" />
+            </td>
+            </tr>
+            </tbody>
+        </table>
+
+        <small>What happens if one of the scores is an order of magnitude higher than the rest? What if one is zero? Try it</small>
+        <p>Try removing the <code>true</code> from the watch function above and see what happens. Why does this happen? To learn more read about the <a href="http://docs.angularjs.org/api/ng.$rootScope.Scope#$watch">objectEquality</a> parameter of the <code>$watch</code> function.</p>
+
+    </div>
+
+    <div ng-controller="D3GraphCtrl">
+        <div id="graph-container">
+            <d3-graph data="data"></d3-graph>
+        </div>
+    </div>
+
     <span style="font-family: Chivo, sans-serif">
         <h1>{{"Goal Factoring"|uppercase}}</h1>
     </span>
+
+    <br>
+
     <div ng-controller="GoalCtrl">
 
         <div ng-controller="OmnibarCtrl">
@@ -73,10 +119,11 @@
         </div>
 
         <br>
-        <br>
 
         <div ng-controller="DisplayCtrl">
+
             <div id="display-container">
+
                 <span><h2>{{'Interface'|uppercase}}</h2></span>
                 <p>Goal Dump:</p>
                 {{sourceGoal.label}}
@@ -99,7 +146,11 @@
                 <p>
                 Node Count: {{nodecount}}
 
-
+                <span><h2>{{'Graph Methods Testing'|uppercase}}</h2></span>
+                <p>
+                Graph:
+                {{graph}}
+                </p>
 
             </div>
         </div>

@@ -56,6 +56,15 @@ schema.comment = new mongoose.Schema({
   }
 });
 */
+
+schema.session = new mongoose.Schema({
+    source: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'node'
+    },
+    phase: { type: Number }
+});
+
 schema.node = new mongoose.Schema({
     nodeNum: {
         type: Number
@@ -75,12 +84,14 @@ schema.edge = new mongoose.Schema({
 });
 
 schema.graph = new mongoose.Schema({
-    u: {
-        type: Number
-    },
-    v: {
-        type: Number
-    }
+    nodes: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'node'
+    }],
+    edges: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'edge'
+    }]
 });
 
 odmApi.schema   = schema;

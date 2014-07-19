@@ -12,6 +12,7 @@ angular.module('myApp', [
     'myApp.directives',
     'myApp.controllers',
     'myApp.data',
+    'd3',
     'siyfion.sfTypeahead'
 ])
 .config(['$routeProvider', '$httpProvider', 'RestangularProvider', function(Router, $httpProvider, RestangularProvider) {

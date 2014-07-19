@@ -58,6 +58,12 @@ facultyAPI.addResource({
 
 facultyAPI.addResource({
     app: app,
+    resourceName: 'session',
+    collection: db.session
+});
+
+facultyAPI.addResource({
+    app: app,
     resourceName: 'node',
     collection: db.node
 });
