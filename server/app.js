@@ -6,7 +6,8 @@ var bodyParser = require('body-parser');
 var errorHandler = require('errorhandler');
 
 var db         = require('./lib/mongooseModels');
-var facultyAPI = require('faculty-api');
+var facultyAPI = require('faculty-api'); // replacing with mers; keeping around because it's quick and easy to test with
+var mers       = require('mers');
 var path       = require('path');
 
 var allowCrossDomain = function(req, res, next) {
@@ -17,6 +18,18 @@ var allowCrossDomain = function(req, res, next) {
     next();
 }
 
+/* create restful payload from mers format */
+var BufferedJSONStream = require('./lib/mers/streams').BufferedJSONStream, util = require('util');
+//subclass BufferedJSONStream
+var RestLikeJSONStream = function(){
+    BufferedJSONStream.apply(this, arguments);
+}
+util.inherits(RestLikeJSONStream, BufferedJSONStream);
+//overwrite format;
+RestLikeJSONStream.prototype.format = function(send){
+    return JSON.stringify(send.payload);
+}
+
 app.use(methodOverride());
 app.use(bodyParser());
 app.use(allowCrossDomain);
@@ -24,12 +37,14 @@ app.use(express.static(path.join(__dirname, '../bower_components/')));
 app.use(express.static(path.join(__dirname, '../lib/')));
 app.use(express.static(path.join(__dirname, '../dist/')));
 app.use(express.static(path.join(__dirname, '../app')));
+app.use('/api',mers({responseStream: RestLikeJSONStream, uri:'mongodb://localhost/goalfactor_db'}).rest());
 //app.use(express.static(path.join(__dirname, '../example')));
 app.use(errorHandler({
     dumpExceptions: true,
     showStack: true
 }));
 
+/*
 facultyAPI.addResource({
   app: app,
   resourceName: 'systems',
@@ -42,7 +57,7 @@ facultyAPI.addResource({
   collection: db.sensor
 });
 
-/*
+
 facultyAPI.addResource({
   app: app,
   resourceName: 'post',
@@ -55,7 +70,7 @@ facultyAPI.addResource({
   collection: db.comment
 });
 */
-
+/*
 facultyAPI.addResource({
     app: app,
     resourceName: 'session',
@@ -79,6 +94,7 @@ facultyAPI.addResource({
     resourceName: 'graph',
     collection: db.graph
 });
+*/
 
 app.set('port', process.env.PORT || 3000);
 

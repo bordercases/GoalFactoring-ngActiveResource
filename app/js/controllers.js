@@ -27,10 +27,12 @@ angular.module('myApp.controllers', [])
         $scope.data = $http.get("./models/goals-mis.json");
     }])
     /*
+     """
      How about fetching data over XHR? Both AngularJS and D3 can support fetching data across the wire.
      By using the AngularJS method of fetching data, we get the power of the auto-resolving promises.
      That is to say, we don’t need to modify our workflow at all, other than setting our data in our controller to be fetched over XHR.
-     */
+    """
+    */
     /*
     .controller('ESPNBarCtrl', ['$scope', '$http',
         function($scope, $http) {
@@ -104,7 +106,7 @@ angular.module('myApp.controllers', [])
             setSessionScope();
 
         function setGraphScope()   {
-            // TODO: Migrate all of these to factory/providers
+        // TODO: Migrate all of these to factory/providers
 
         // TODO: Node AJAX interface
 
@@ -118,7 +120,6 @@ angular.module('myApp.controllers', [])
             // Retirms an empty array to default. Once a value is returned from the server
             // that array is filled with those values. So you can use this in your template
             $scope.nodes = baseNodes.getList().$object;
-
             $scope.newNode = function(nodeNum, goal){
                 var nodeContent = {nodeNum: nodeNum, label: goal};
 
@@ -136,9 +137,7 @@ angular.module('myApp.controllers', [])
                 }, function error(reason) {
                     // An error has occurred
                 });
-
             };
-            // TODO: Graph Passback Method
 
         // TODO: Edge AJAX interface
 
@@ -152,7 +151,6 @@ angular.module('myApp.controllers', [])
             // Retirms an empty array to default. Once a value is returned from the server
             // that array is filled with those values. So you can use this in your template
             $scope.edges = baseEdges.getList().$object;
-
             $scope.newEdge = function(node_in, node_out){
                 var edgeContent = {u: node_in, v: node_out};
 
@@ -170,17 +168,16 @@ angular.module('myApp.controllers', [])
                     // An error has occurred
                 });
             };
-            // TODO: Graph Passback Method
 
             // TODO: Label AJAX interface
 
-            /* TODO: Replacing the AJAX interface for Graph temporarily - just using a basic json object to get to the money features faster
+            // TODO: Replacing the AJAX interface for Graph temporarily - just using a basic json object to get to the money features faster
             // TODO: Graph AJAX interface
             var baseGraph = Restangular.all('graph');
             var thisGraph = Restangular.one('graph','12358'); // second param is userID
 
-            var thisNodes = thisGraph.getList('nodes');
-            var thisEdges= thisGraph.getList('edges');
+            var thisNodes = thisGraph.getList('nodes').$object;
+            var thisEdges = thisGraph.getList('edges').$object;
 
             baseGraph.getList().then(function(response){
                 $scope.allGraphs = response;
@@ -188,12 +185,15 @@ angular.module('myApp.controllers', [])
 
             $scope.newGraph = function(nodes,edges){
                 // expecting arrays of nodes and edges
-            }
-            $scope.updateGraph = function(nodes,edges){
-
-            }
-                // TODO: Graph model containing Node, Edge, Label, session properties
-            */
+            };
+            $scope.updateGraph = function(){
+                // take all current nodes and edges and post them to the graph object
+                console.log("update graph")
+                baseGraph.post($scope.graph).then(function(response){
+                    // TODO: ID Callback
+                    console.log(baseGraph)
+                });
+            };
 
             // GRAPH OBJECT
                 // Can't be saved yet, not a REST object, but dead, dead simple.
@@ -252,6 +252,7 @@ angular.module('myApp.controllers', [])
 
                     var newSourceGoal = { nodeNum: JSON.stringify($scope.nodecount), label: goal };
                     $scope.newNode      (JSON.stringify($scope.nodecount), goal);
+                    console.log("Setting Source Goal")
                     $scope.setSourceGoal(newSourceGoal);
 
                 } else {
@@ -281,7 +282,7 @@ angular.module('myApp.controllers', [])
                 }
 
                 $scope.newEdge($scope.sourceGoal.nodeNum , connectNode.nodeNum);
-
+                $scope.updateGraph();
             }
 
         };
@@ -305,6 +306,7 @@ angular.module('myApp.controllers', [])
         function setupOmnibar()   {
             // Instantiate the bloodhound suggestion engine
             var initBar = function ($scope) {
+
                 var goals = new Bloodhound({
                     datumTokenizer: function (d) {
                         return Bloodhound.tokenizers.whitespace(d.num);
@@ -416,4 +418,25 @@ angular.module('myApp.controllers', [])
 
     }])
     .controller('DisplayCtrl',['$scope', 'sharedSession', function($scope, sharedSession){
+        function setSessionScope() {
+            $scope.sharedSession = sharedSession; // TODO: Replaced with system object and sensors?
+            // Phase - what question and submissions we use
+            $scope.$watch('sharedSession.getPhase()', function(){
+                $scope.phase = sharedSession.getPhase();
+            });
+            $scope.setPhase = function(value){
+                sharedSession.setPhase(value);
+                $scope.phase = sharedSession.getPhase();
+            };
+
+            // Source Goal - what the entered goals will link to by default. Can be changed.
+            $scope.$watch('sharedSession.getGetSourceGoal()', function(){
+                $scope.sourceGoal = sharedSession.getSourceGoal();
+            });
+            $scope.setSourceGoal = function(value){
+                sharedSession.setSourceGoal(value);
+                $scope.sourceGoal = sharedSession.getSourceGoal();
+            };
+        };
+        setSessionScope();
     }]);

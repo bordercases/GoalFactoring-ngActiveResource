@@ -6,7 +6,7 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>GlFctr</title>
+    <title>GoalFactor - The Dreamed Future</title>
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -60,35 +60,6 @@
 </head>
 <body>
 
-    <div ng-controller="D3BarCtrl" on-click="showDetailPanel(item)">
-
-        <h2>{{greeting|uppercase}}</h2>
-        <d3-bars data="data" on-click="d3OnClick(item)"></d3-bars>
-
-        <table> <!-- I can apply the principles behind this table to my edge/goal display -->
-            <thead>
-            <tr><th colspan="4">Try editing the values of the data attribute</th></tr>
-            </thead>
-            <tbody>
-            <tr ng-repeat="obj in data">
-                <td>Name:</td><td><input ng-model="data[$index].name" type="text" placeholder="Name" /></td>
-                <td>Score</td><td><input ng-model="data[$index].score" type="number" min="1" placeholder="Score" />
-            </td>
-            </tr>
-            </tbody>
-        </table>
-
-        <small>What happens if one of the scores is an order of magnitude higher than the rest? What if one is zero? Try it</small>
-        <p>Try removing the <code>true</code> from the watch function above and see what happens. Why does this happen? To learn more read about the <a href="http://docs.angularjs.org/api/ng.$rootScope.Scope#$watch">objectEquality</a> parameter of the <code>$watch</code> function.</p>
-
-    </div>
-
-    <div ng-controller="D3GraphCtrl">
-        <div id="graph-container">
-            <d3-graph data="data"></d3-graph>
-        </div>
-    </div>
-
     <span style="font-family: Chivo, sans-serif">
         <h1>{{"Goal Factoring"|uppercase}}</h1>
     </span>
@@ -131,9 +102,18 @@
                     <dd>{{node.label}}</dd>
                 </dl>
 
-                <p>Raw Goal Data</p>
+                <p>Raw Nodes</p>
+
+                <table> <!-- I can apply the principles behind this table to my edge/goal display -->
+
                 <ul ng-repeat="node in nodes">
                     <li>{{node}}</li>
+                </ul>
+
+                <p>Raw Edges</p>
+
+                <ul ng-repeat="edge in edges">
+                    <li>{{edge}}</li>
                 </ul>
 
                 <span><h2>{{'Data Dump'|uppercase}}</h2></span>

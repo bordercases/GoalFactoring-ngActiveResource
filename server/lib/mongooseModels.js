@@ -21,6 +21,7 @@ if (process.env.MONGOLAB_URI) {
 
 var schema = {}, odmApi = {};
 
+/*
 schema.system = new mongoose.Schema({
   placement: {
     type: String
@@ -36,7 +37,7 @@ schema.sensor = new mongoose.Schema({
     required: true
   }
 });
-/*
+
 schema.post = new mongoose.Schema({
   title: {
     type: String
@@ -57,15 +58,9 @@ schema.comment = new mongoose.Schema({
 });
 */
 
-schema.session = new mongoose.Schema({
-    source: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'node'
-    },
-    phase: { type: Number }
-});
 
-schema.node = new mongoose.Schema({
+
+NodeSchema = new mongoose.Schema({
     nodeNum: {
         type: Number
     },
@@ -74,7 +69,7 @@ schema.node = new mongoose.Schema({
     }
 });
 
-schema.edge = new mongoose.Schema({
+EdgeSchema = new mongoose.Schema({
     u: {
         type: Number
     },
@@ -83,20 +78,29 @@ schema.edge = new mongoose.Schema({
     }
 });
 
-schema.graph = new mongoose.Schema({
-    nodes: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'node'
-    }],
-    edges: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'edge'
-    }]
+GraphSchema = new mongoose.Schema({
+    nodes: [NodeSchema],
+    edges: [EdgeSchema]
 });
 
+SessionSchema = new mongoose.Schema({
+    source: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'NodeSchema'
+    },
+    phase: { type: Number }
+});
+
+var Session = module.exports.Session = mongoose.model('Session', SessionSchema);
+var Node = module.exports.Node = mongoose.model('Node', NodeSchema);
+var Edge = module.exports.Edge = mongoose.model('Edge', EdgeSchema);
+var Graph = module.exports.Graph = mongoose.model('Graph', GraphSchema);
+
+/*
 odmApi.schema   = schema;
 odmApi.mongoose = mongoose;
 for (var i in schema) {
   odmApi[i] = mongoose.model(i, schema[i]);
 }
 module.exports  = odmApi;
+*/
